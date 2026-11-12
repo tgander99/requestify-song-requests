@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Guest song requests are inserted only via the `submitSongRequest` server function (service role, rate-limit + duplicate checks); `song_requests` has no anon grants and admin reads/writes go through RLS `has_role(..., 'admin')` — keeps guests out of admin data.
+- The first auth user becomes admin via the `handle_first_admin` trigger on `auth.users` — no in-app role management needed for a single-DJ MVP.
