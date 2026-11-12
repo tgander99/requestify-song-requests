@@ -14,11 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          created_at: string
+          id: string
+          is_open: boolean
+          name: string
+          owner_id: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_open?: boolean
+          name: string
+          owner_id: string
+          slug?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_open?: boolean
+          name?: string
+          owner_id?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       song_requests: {
         Row: {
           artist: string
           client_hash: string
           created_at: string
+          event_id: string | null
           guest_name: string | null
           id: string
           message: string | null
@@ -31,6 +59,7 @@ export type Database = {
           artist: string
           client_hash: string
           created_at?: string
+          event_id?: string | null
           guest_name?: string | null
           id?: string
           message?: string | null
@@ -43,6 +72,7 @@ export type Database = {
           artist?: string
           client_hash?: string
           created_at?: string
+          event_id?: string | null
           guest_name?: string | null
           id?: string
           message?: string | null
@@ -51,7 +81,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "song_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -83,6 +121,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      owns_event: { Args: { _event_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin"

@@ -8,11 +8,15 @@ import type { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { AdminNav } from "@/components/AdminNav";
 import { useIsAdmin } from "@/lib/use-is-admin";
+import { useEvents, type PartyEvent } from "@/lib/events";
+import { EventBar, CreateEventForm } from "@/components/EventBar";
 
 type Req = Database["public"]["Tables"]["song_requests"]["Row"];
 type Status = Req["status"];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  validateSearch: (s: Record<string, unknown>): { event?: string } =>
+    typeof s.event === "string" ? { event: s.event } : {},
   head: () => ({
     meta: [
       { title: "DJ Dashboard — Requestify" },
@@ -54,13 +58,32 @@ function Dashboard() {
               <h1 className="text-xl font-bold">Not a DJ account</h1>
               <p className="max-w-sm text-muted-foreground">You're signed in, but this account doesn't have DJ access. Only the admin can see requests.</p>
             </Center>
-          ) : <Queue />}
+          ) : <Events />}
       </main>
     </div>
   );
 }
 
-function Queue() {
+function Events() {
+  const { event } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const ev = useEvents();
+  const select = (id: string) => navigate({ search: { event: id }, replace: true });
+  if (ev.isLoading) return <Center><Loader2 className="h-8 w-8 animate-spin text-primary" /></Center>;
+  if (ev.isError) return <Center><AlertTriangle className="h-8 w-8 text-destructive" /><p>Couldn't load your parties.</p><Button variant="glass" onClick={() => ev.refetch()}>Retry</Button></Center>;
+  const list = ev.data ?? [];
+  if (list.length === 0) return (
+    <Center>
+      <h1 className="text-2xl font-bold">Create your first party</h1>
+      <p className="max-w-sm text-muted-foreground">Each party gets its own guest QR code and its own request queue.</p>
+      <div className="w-full max-w-sm"><CreateEventForm autoFocus onCreated={(e) => select(e.id)} /></div>
+    </Center>
+  );
+  const current = list.find((e) => e.id === event) ?? list[0]!;
+  return (<><EventBar events={list} current={current} onSelect={select} /><Queue key={current.id} ev={current} /></>);
+}
+
+function Queue({ ev }: { ev: PartyEvent }) {
   const qc = useQueryClient();
   const [tab, setTab] = useState<Status>("pending");
   const [live, setLive] = useState(false);
@@ -69,9 +92,9 @@ function Queue() {
   notifRef.current = notif;
 
   const q = useQuery({
-    queryKey: ["requests"],
+    queryKey: ["requests", ev.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("song_requests").select("*").order("created_at", { ascending: true }).limit(500);
+      const { data, error } = await supabase.from("song_requests").select("*").eq("event_id", ev.id).order("created_at", { ascending: true }).limit(500);
       if (error) throw error;
       return data;
     },
@@ -81,8 +104,8 @@ function Queue() {
     setNotif(typeof Notification === "undefined" ? "unsupported" : Notification.permission);
     const ch = supabase
       .channel(`requests-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "song_requests" }, (payload) => {
-        qc.invalidateQueries({ queryKey: ["requests"] });
+      .on("postgres_changes", { event: "*", schema: "public", table: "song_requests", filter: `event_id=eq.${ev.id}` }, (payload) => {
+        qc.invalidateQueries({ queryKey: ["requests", ev.id] });
         if (payload.eventType === "INSERT") {
           const r = payload.new as Req;
           toast(`🎵 ${r.title}`, { description: `${r.artist}${r.guest_name ? ` · from ${r.guest_name}` : ""}` });
@@ -93,15 +116,15 @@ function Queue() {
       })
       .subscribe((s) => setLive(s === "SUBSCRIBED"));
     return () => { supabase.removeChannel(ch); };
-  }, [qc]);
+  }, [qc, ev.id]);
 
   async function update(id: string, status: Status) {
     const { error } = await supabase.from("song_requests").update({ status }).eq("id", id);
-    if (error) toast.error("Update failed"); else qc.invalidateQueries({ queryKey: ["requests"] });
+    if (error) toast.error("Update failed"); else qc.invalidateQueries({ queryKey: ["requests", ev.id] });
   }
   async function remove(id: string) {
     const { error } = await supabase.from("song_requests").delete().eq("id", id);
-    if (error) toast.error("Delete failed"); else qc.invalidateQueries({ queryKey: ["requests"] });
+    if (error) toast.error("Delete failed"); else qc.invalidateQueries({ queryKey: ["requests", ev.id] });
   }
   async function askNotif() {
     if (typeof Notification === "undefined") return;
@@ -117,7 +140,7 @@ function Queue() {
     <>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Requests</h1>
+          <h1 className="text-2xl font-bold">{ev.name}</h1>
           <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
             <span className={`h-2 w-2 rounded-full ${live ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />
             {live ? "Live — updates instantly" : "Connecting…"}

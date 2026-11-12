@@ -21,3 +21,5 @@ export function normalizeSong(title: string, artist: string) {
 
 export const RATE_LIMIT = { max: 3, windowMinutes: 10 };
 export const DUPLICATE_WINDOW_HOURS = 3;
+
+export const slugSchema = z.string().regex(/^[a-z0-9-]{4,40}$/);
