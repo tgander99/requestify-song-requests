@@ -1,6 +1,7 @@
 - [x] Add per-event cooldown storage and atomic guest enforcement.
 - [x] Add DJ setting and guest countdown without changing the request flow.
 - [x] Test settings, guest/event isolation, concurrent submissions, and QR destinations (completed in prior task); do not publish.
+- [ ] Connect owner Stripe account securely (connector/secure form only) and confirm Connect direct-charge support. Blocked: owner must create the Stripe connection.
 - [ ] Priority: secure guest tipping via Stripe Connect, Apple Pay/Google Pay/card, £1/£2/£5/custom GBP. Direct event-owner DJ charges, no platform commission, separate from subscriptions/vouchers. Blocked: built-in payments not enabled; payment code cannot begin before interactive editor setup, and Connect support is unverified.
 - [ ] Stripe Connect DJ onboarding/status and payouts; verified webhooks, idempotent payment records, eligibility checks, destination/access-control tests. Blocked: supported Connect integration and provider setup; no existing payment implementation.
 - [ ] DJ subscriptions: £5.99/month, 14-day trial. Blocked: payment setup and preceding launch stages.
