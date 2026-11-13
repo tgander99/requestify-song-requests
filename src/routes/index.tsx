@@ -10,6 +10,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Guests scan a QR code and send song requests straight to the DJ. No app needed." },
       { property: "og:title", content: "Requestify — Song requests for your party" },
       { property: "og:description", content: "Guests scan a QR code and send song requests straight to the DJ. No app needed." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Landing,

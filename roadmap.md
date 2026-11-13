@@ -1,0 +1,3 @@
+- [ ] Add per-event cooldown storage and atomic guest enforcement.
+- [ ] Add DJ setting and guest countdown without changing the request flow.
+- [ ] Test settings, guest/event isolation, concurrent submissions, and QR destinations; do not publish.

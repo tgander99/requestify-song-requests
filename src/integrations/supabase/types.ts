@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       events: {
         Row: {
+          cooldown_minutes: number
           created_at: string
           id: string
           is_open: boolean
@@ -24,6 +25,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          cooldown_minutes?: number
           created_at?: string
           id?: string
           is_open?: boolean
@@ -32,6 +34,7 @@ export type Database = {
           slug?: string
         }
         Update: {
+          cooldown_minutes?: number
           created_at?: string
           id?: string
           is_open?: boolean
@@ -40,6 +43,32 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      guest_request_activity: {
+        Row: {
+          event_id: string
+          guest_hash: string
+          last_requested_at: string
+        }
+        Insert: {
+          event_id: string
+          guest_hash: string
+          last_requested_at: string
+        }
+        Update: {
+          event_id?: string
+          guest_hash?: string
+          last_requested_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_request_activity_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       song_requests: {
         Row: {
@@ -122,6 +151,18 @@ export type Database = {
         Returns: boolean
       }
       owns_event: { Args: { _event_id: string }; Returns: boolean }
+      submit_event_song_request: {
+        Args: {
+          p_artist: string
+          p_guest_hash: string
+          p_guest_name: string
+          p_message: string
+          p_normalized_key: string
+          p_slug: string
+          p_title: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin"

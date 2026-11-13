@@ -17,6 +17,8 @@ export const Route = createFileRoute("/_authenticated/qr")({
       { name: "description", content: "Print or download the QR code guests scan to request songs." },
       { property: "og:title", content: "Party QR Code — Requestify" },
       { property: "og:description", content: "Print or download the QR code guests scan to request songs." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
