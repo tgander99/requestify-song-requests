@@ -15,7 +15,7 @@ export function CreateEventForm({ onCreated, autoFocus }: { onCreated: (e: Party
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const n = name.trim();
-    if (!n || n.length > 80) return toast.error("Give the party a name (max 80 characters)");
+    if (!n || n.length > 80) { toast.error("Give the party a name (max 80 characters)"); return; }
     setBusy(true);
     try {
       const ev = await createEvent(n);

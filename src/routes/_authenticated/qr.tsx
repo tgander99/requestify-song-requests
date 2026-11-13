@@ -10,7 +10,7 @@ import { useEvents, guestPath } from "@/lib/events";
 
 export const Route = createFileRoute("/_authenticated/qr")({
   validateSearch: (s: Record<string, unknown>): { event?: string } =>
-    typeof s.event === "string" ? { event: s.event } : {},
+    typeof s["event"] === "string" ? { event: s["event"] } : {},
   head: () => ({
     meta: [
       { title: "Party QR Code — Requestify" },
