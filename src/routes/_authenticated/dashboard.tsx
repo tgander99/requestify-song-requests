@@ -16,7 +16,7 @@ type Status = Req["status"];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   validateSearch: (s: Record<string, unknown>): { event?: string } =>
-    typeof s.event === "string" ? { event: s.event } : {},
+    typeof s["event"] === "string" ? { event: s["event"] } : {},
   head: () => ({
     meta: [
       { title: "DJ Dashboard — Requestify" },

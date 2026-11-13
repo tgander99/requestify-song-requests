@@ -1,4 +1,5 @@
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { CheckCircle2, Music2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,11 @@ export function RequestForm({ slug, eventName }: { slug: string; eventName: stri
             </form>
           </>
         )}
+        <footer className="mt-10 text-center">
+          <Link to="/auth" className="text-xs text-muted-foreground/70 underline-offset-4 hover:text-muted-foreground hover:underline">
+            Are you the DJ? Sign in
+          </Link>
+        </footer>
       </div>
     </main>
   );
