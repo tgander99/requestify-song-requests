@@ -15,6 +15,13 @@
       "when": 1794482835308,
       "tag": "0001_events",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794567342384,
+      "tag": "0002_event_guest_cooldowns",
+      "breakpoints": true
     }
   ]
 }
