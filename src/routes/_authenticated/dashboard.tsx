@@ -10,6 +10,7 @@ import { AdminNav } from "@/components/AdminNav";
 import { useIsAdmin } from "@/lib/use-is-admin";
 import { useEvents, type PartyEvent } from "@/lib/events";
 import { EventBar, CreateEventForm } from "@/components/EventBar";
+import { EventCooldown } from "@/components/EventCooldown";
 
 type Req = Database["public"]["Tables"]["song_requests"]["Row"];
 type Status = Req["status"];
@@ -23,6 +24,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { name: "description", content: "Live song request queue for the DJ." },
       { property: "og:title", content: "DJ Dashboard — Requestify" },
       { property: "og:description", content: "Live song request queue for the DJ." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -79,8 +82,9 @@ function Events() {
       <div className="w-full max-w-sm"><CreateEventForm autoFocus onCreated={(e) => select(e.id)} /></div>
     </Center>
   );
-  const current = list.find((e) => e.id === event) ?? list[0]!;
-  return (<><EventBar events={list} current={current} onSelect={select} /><Queue key={current.id} ev={current} /></>);
+  const current = list.find((e) => e.id === event) ?? list[0];
+  if (!current) return null;
+  return (<><EventBar events={list} current={current} onSelect={select} /><EventCooldown key={current.id} event={current} /><Queue key={current.id} ev={current} /></>);
 }
 
 function Queue({ ev }: { ev: PartyEvent }) {

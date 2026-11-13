@@ -31,3 +31,6 @@ use the editor.
 
 - Guest song requests are inserted only via the `submitSongRequest` server function (service role, rate-limit + duplicate checks); `song_requests` has no anon grants and admin reads/writes go through RLS `has_role(..., 'admin')` — keeps guests out of admin data.
 - The first auth user becomes admin via the `handle_first_admin` trigger on `auth.users` — no in-app role management needed for a single-DJ MVP.
+- Guest cooldown and anti-spam checks run atomically in a service-role-only database function called by submitSongRequest; transaction locks prevent parallel submissions bypassing checks.
+- Identify anonymous guests with a server-issued HTTP-only browser cookie hashed before storage, not IP/user-agent; shared Wi-Fi guests must not share restrictions.
+- Keep last successful submission activity separate from queue rows so deleting or moderating requests does not reset cooldowns; current event settings determine remaining time.
