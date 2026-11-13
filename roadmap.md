@@ -1,3 +1,9 @@
-- [ ] Add per-event cooldown storage and atomic guest enforcement.
-- [ ] Add DJ setting and guest countdown without changing the request flow.
-- [ ] Test settings, guest/event isolation, concurrent submissions, and QR destinations; do not publish.
+- [x] Add per-event cooldown storage and atomic guest enforcement.
+- [x] Add DJ setting and guest countdown without changing the request flow.
+- [x] Test settings, guest/event isolation, concurrent submissions, and QR destinations (completed in prior task); do not publish.
+- [ ] Guest tipping: Apple Pay/Google Pay/card, £1/£2/£5/custom. Blocked: built-in payments must be enabled in the interactive Lovable editor before payment code.
+- [ ] Stripe Connect DJ payouts. Blocked: confirm platform support and connected-DJ onboarding before promising payouts.
+- [ ] DJ subscriptions: £5.99/month, 14-day trial. Blocked: payment setup and preceding launch stages.
+- [ ] Admin lifetime-free/promotional vouchers: limits, expiry, revocation, redemption visibility. Blocked: subscription entitlement integration and preceding launch stages.
+- [ ] Subscription management: status, next payment, payment method, invoices, cancellation. Blocked: payment setup and preceding launch stages.
+- [ ] Verify real test transactions and payouts end-to-end before claiming payment readiness for 21–22 November 2026. Blocked: provider setup and onboarding.
