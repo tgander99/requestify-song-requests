@@ -1,6 +1,6 @@
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Music2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,17 +8,46 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
 import { requestSchema } from "@/lib/request-validation";
-import { submitSongRequest } from "@/lib/requests.functions";
+import { getGuestCooldown, submitSongRequest } from "@/lib/requests.functions";
+import { formatCooldown, type CooldownState } from "@/lib/cooldown";
 
 type Errors = Partial<Record<"title" | "artist" | "guestName" | "message", string>>;
 
 export function RequestForm({ slug, eventName }: { slug: string; eventName: string }) {
   const submit = useServerFn(submitSongRequest);
+  const checkCooldown = useServerFn(getGuestCooldown);
   const [form, setForm] = useState({ title: "", artist: "", guestName: "", message: "", website: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [serverError, setServerError] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ title: string; artist: string } | null>(null);
+  const [remaining, setRemaining] = useState(0);
+  const [ready, setReady] = useState(false);
+  const deadline = useRef(0);
+  const applyCooldown = (state: CooldownState) => {
+    deadline.current = performance.now() + state.remainingSeconds * 1000;
+    setRemaining(state.remainingSeconds);
+  };
+
+  useEffect(() => {
+    let active = true;
+    let checking = false;
+    async function refresh() {
+      if (checking) return;
+      checking = true;
+      try {
+        const state = await checkCooldown({ data: { slug } });
+        if (active) { applyCooldown(state); setReady(true); }
+      } catch { /* Submission still checks server-side; retry on the next poll. */ }
+      finally { checking = false; }
+    }
+    void refresh();
+    const poll = window.setInterval(() => void refresh(), 10_000);
+    const tick = window.setInterval(() => setRemaining(Math.max(0, Math.ceil((deadline.current - performance.now()) / 1000))), 1000);
+    const focus = () => void refresh();
+    window.addEventListener("focus", focus);
+    return () => { active = false; clearInterval(poll); clearInterval(tick); window.removeEventListener("focus", focus); };
+  }, [checkCooldown, slug]);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -37,6 +66,7 @@ export function RequestForm({ slug, eventName }: { slug: string; eventName: stri
     setBusy(true);
     try {
       const res = await submit({ data: { ...form, slug } });
+      if (res.remainingSeconds !== undefined && res.cooldownMinutes !== undefined) applyCooldown({ remainingSeconds: res.remainingSeconds, cooldownMinutes: res.cooldownMinutes });
       if (res.ok) setDone({ title: parsed.data.title, artist: parsed.data.artist });
       else setServerError(res.error);
     } catch {
@@ -62,6 +92,7 @@ export function RequestForm({ slug, eventName }: { slug: string; eventName: stri
               <span className="text-foreground font-medium">{done.title}</span> by {done.artist} is on its way to the DJ.
               No promises — but keep your ears open 🎧
             </p>
+            {remaining > 0 && <p role="status" className="mt-4 text-sm text-accent">You can request another song in {formatCooldown(remaining)}.</p>}
             <Button variant="glass" size="xl" className="mt-6 w-full" onClick={() => {
               setDone(null); setForm({ title: "", artist: "", guestName: "", message: "", website: "" });
             }}>Request another</Button>
@@ -87,7 +118,8 @@ export function RequestForm({ slug, eventName }: { slug: string; eventName: stri
               <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true"
                 value={form.website} onChange={set("website")} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
               {serverError && <p role="alert" className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">{serverError}</p>}
-              <Button type="submit" variant="neon" size="xl" className="w-full" disabled={busy}>
+              {remaining > 0 && <p role="status" className="text-sm text-accent">You can request another song in {formatCooldown(remaining)}.</p>}
+              <Button type="submit" variant="neon" size="xl" className="w-full" disabled={busy || !ready || remaining > 0}>
                 {busy ? <Loader2 className="animate-spin" /> : <Music2 />} {busy ? "Sending…" : "Send request"}
               </Button>
             </form>

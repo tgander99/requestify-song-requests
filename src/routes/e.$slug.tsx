@@ -14,7 +14,7 @@ export const Route = createFileRoute("/e/$slug")({
   head: ({ loaderData }) => {
     const t = loaderData ? `Request a song at ${loaderData.name} — Requestify` : "Party not found — Requestify";
     const d = "Send your song request straight to the DJ. No app needed.";
-    return { meta: [{ title: t }, { name: "description", content: d }, { property: "og:title", content: t }, { property: "og:description", content: d }, { name: "robots", content: "noindex" }] };
+    return { meta: [{ title: t }, { name: "description", content: d }, { property: "og:title", content: t }, { property: "og:description", content: d }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] };
   },
   notFoundComponent: () => (
     <Msg title="Party not found" body="This request link isn't valid. Ask the DJ for the QR code." />

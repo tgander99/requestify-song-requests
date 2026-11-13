@@ -14,6 +14,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Sign in to the Requestify DJ booth." },
       { property: "og:title", content: "DJ Login — Requestify" },
       { property: "og:description", content: "Sign in to the Requestify DJ booth." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
