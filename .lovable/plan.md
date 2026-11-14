@@ -1,23 +1,22 @@
-# Stripe Connect tipping: what Lovable's Stripe options can do
+# Connecting your existing Stripe account (research only)
 
-## What I found (from Lovable's official docs)
-- **Built-in Stripe (the "Try Stripe" button, Lovable sets up the account for you):** The docs only cover checkout and ordinary payments into one Stripe account that Lovable creates for the app. They say nothing about Stripe Connect Express, signing up DJs, direct charges or transfers to DJs. The docs don't say Connect is impossible, but they don't say it's supported either. You can later link this account to an existing Stripe account when you claim it, but that doesn't give you your own platform key.
-- **"Connect your own Stripe account" (you supply your own secret key):** This is a separate option. A project uses one option or the other, never both. Its docs cover checkout, subscriptions and the customer portal. Connect isn't mentioned.
-- **Conclusion:** No Lovable Stripe option is documented to support Connect Express, signing up each DJ, or direct charges to a DJ. "Try Stripe" is the wrong choice for tips that go straight to each DJ, because tips would land in the account Lovable creates, not with the DJ.
+## Two different Lovable options
+- **"Try Stripe" (built-in payments):** Lovable creates and runs a Stripe account for the app. You don't use your own key. Don't use this option, because tips would go into Lovable's account rather than to each DJ.
+- **"Connect your own Stripe account":** You give Lovable a key from your existing Stripe account through a secure form. A project uses one option or the other, never both.
 
-## Recommended setup
-1. Use **your own Stripe account as the platform**, with Connect turned on (Express accounts, test mode first). Apply for Connect in your Stripe account. Approval can take days.
-2. Save your Stripe test secret key, and later the webhook signing secret, as secrets in Project Settings → Secrets (suggested names: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`). Never paste them in chat. Don't click "Try Stripe" in this project, since it would block the own-key route.
-3. Then build, all of it server-side:
-   - DJ: a "Set up payouts" button on the dashboard. It creates a Stripe Express account and sends the DJ to Stripe's sign-up page. The DJ's account ID and ready status are saved against the DJ.
-   - Guest: a Tip button on `/e/<party-code>` offering £1, £2, £5 or a custom amount. The server takes the DJ's account from the party, not from the guest's browser, and charges directly on that DJ's account with no platform fee. Card and Apple/Google Pay go through Stripe's own payment form.
-   - A tips record is marked paid only when a signed Stripe notification arrives, and repeat notifications are ignored. Each DJ sees only their own party's tips.
-4. Check end to end with Stripe test cards and a test payout before calling anything live.
+## Exact steps to connect your existing account securely
+1. In Stripe, turn on **Test mode** and go to **Developers → API keys**. Create a **restricted key** (starts `rk_test_`) with only the access needed. A test secret key (`sk_test_`) also works. A publishable key (`pk_`) is rejected.
+2. In the **normal Lovable editor chat** (not this session), say you want to use **your own Stripe account**, not built-in payments.
+3. Lovable shows a **Connect Stripe** form. Paste the key into **Stripe restricted API key** and click **Submit**. Lovable checks the key and saves it as a hidden secret. Never paste it in chat.
 
-## Risks and blockers
-- Building on your own key isn't a Lovable-documented path for Connect. It should work, but Lovable doesn't confirm it.
-- Stripe's Connect approval and DJ identity checks are outside our control. That makes 21 November tight.
-- Only the first account is a DJ today. More DJs need a separate change to who gets DJ access.
+## Does the own-account option cover Stripe Connect?
+- **No, it doesn't say it does.** The docs cover one-time checkout, subscriptions, products/prices and the customer portal. Stripe Connect, Express accounts, signing up DJs, direct charges and payouts to DJs aren't mentioned. Lovable doesn't say Connect is blocked, but doesn't say it's supported either.
+- The docs give no list of key permissions. For Connect, the key will also need access to connected accounts, account sign-up links, payments and webhook events.
+- **So DJ tipping has to be built custom** on top of your connected key:
+  - a "Set up payouts" page where each DJ signs up with Stripe
+  - direct charges on that DJ's account, where the server picks the DJ from the party
+  - signed Stripe notifications to confirm each tip
+- Your Stripe account must also have **Connect enabled** (in the Stripe dashboard under Connect). Stripe may take days to review it.
 
 ## Next step
-Approve this plan only once you've saved your Stripe test key in Secrets and Connect is on. Nothing has been changed, set up or published.
+Connect the test key using the steps above, and turn on Connect in Stripe. Then approve the build, and I'll confirm the key works with a harmless test call before writing any tipping code. Nothing has been changed or published.
