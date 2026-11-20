@@ -113,7 +113,7 @@ export async function posterPdf(png: Blob) {
   const page = doc.addPage([595.28, 841.89]);
   const img = await doc.embedPng(new Uint8Array(await png.arrayBuffer()));
   page.drawImage(img, { x: 0, y: 0, width: 595.28, height: 841.89 });
-  return new Blob([await doc.save()], { type: "application/pdf" });
+  return new Blob([(await doc.save()).slice().buffer as ArrayBuffer], { type: "application/pdf" });
 }
 
 export function downloadBlob(blob: Blob, filename: string) {
