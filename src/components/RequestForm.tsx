@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { SongAutocomplete } from "@/components/SongAutocomplete";
 import { Logo } from "@/components/Logo";
 import { requestSchema } from "@/lib/request-validation";
 import { getGuestCooldown, submitSongRequest } from "@/lib/requests.functions";
@@ -104,7 +105,7 @@ export function RequestForm({ slug, eventName }: { slug: string; eventName: stri
 
             <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5 rounded-3xl border border-border bg-card/70 p-6 backdrop-blur">
               <Field id="title" label="Song title *" error={errors.title}>
-                <Input id="title" value={form.title} onChange={set("title")} maxLength={120} placeholder="e.g. Mr. Brightside" className="h-12 text-base" />
+                <SongAutocomplete value={form.title} onChange={(v) => setForm((f) => ({ ...f, title: v }))} onPick={(sg) => setForm((f) => ({ ...f, title: sg.title, artist: sg.artist }))} />
               </Field>
               <Field id="artist" label="Artist *" error={errors.artist}>
                 <Input id="artist" value={form.artist} onChange={set("artist")} maxLength={120} placeholder="e.g. The Killers" className="h-12 text-base" />
