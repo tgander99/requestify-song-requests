@@ -1,0 +1,1 @@
+ALTER TABLE public.events ADD COLUMN dj_name text CHECK (dj_name IS NULL OR char_length(dj_name) <= 60);

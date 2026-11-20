@@ -6,6 +6,7 @@ import { Plus, QrCode, Loader2, Lock, Unlock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PosterDownload } from "@/components/PosterDownload";
 import { createEvent, type PartyEvent } from "@/lib/events";
 
 export function CreateEventForm({ onCreated, autoFocus }: { onCreated: (e: PartyEvent) => void; autoFocus?: boolean }) {
@@ -56,6 +57,7 @@ export function EventBar({ events, current, onSelect }: { events: PartyEvent[]; 
         <Button variant="ghost" size="sm" onClick={toggleOpen}>{current.is_open ? <><Lock />Close requests</> : <><Unlock />Reopen</>}</Button>
         <Button asChild variant="ghost" size="sm" className="ml-auto"><Link to="/qr" search={{ event: current.id }}><QrCode />Guest QR</Link></Button>
       </div>
+      <PosterDownload event={current} />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AdminNav } from "@/components/AdminNav";
 import { Link } from "@tanstack/react-router";
+import { PosterDownload } from "@/components/PosterDownload";
 import { useEvents, guestPath } from "@/lib/events";
 
 export const Route = createFileRoute("/_authenticated/qr")({
@@ -71,6 +72,7 @@ function QrPage() {
           <Button variant="glass" onClick={() => window.print()}><Printer />Print</Button>
           <Button variant="glass" onClick={() => { navigator.clipboard.writeText(url); toast.success("Link copied"); }}><Copy />Link</Button>
         </div>
+        <div className="no-print mt-4"><PosterDownload event={current} /></div>
         <p className="no-print mt-4 text-xs text-muted-foreground">Tip: publish the app first so the QR points to your live link, not the preview.</p>
       </main>
     </div>

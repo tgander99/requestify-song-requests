@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           cooldown_minutes: number
           created_at: string
+          dj_name: string | null
           id: string
           is_open: boolean
           name: string
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           cooldown_minutes?: number
           created_at?: string
+          dj_name?: string | null
           id?: string
           is_open?: boolean
           name: string
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           cooldown_minutes?: number
           created_at?: string
+          dj_name?: string | null
           id?: string
           is_open?: boolean
           name?: string
