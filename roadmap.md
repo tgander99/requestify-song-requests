@@ -1,3 +1,5 @@
+- [x] Priority 1: verified one cooldown control and persisted settings; fixed/tested event QR PNG downloads and isolated clean printing.
+- [ ] Priority 2: authorized event deletion with related-record cleanup and confirmation. Deferred: insufficient remaining workspace credits for implementation and security testing; no deletion changes started.
 - [x] Add per-event cooldown storage and atomic guest enforcement.
 - [x] Add DJ setting and guest countdown without changing the request flow.
 - [x] Test settings, guest/event isolation, concurrent submissions, and QR destinations (completed in prior task); do not publish.

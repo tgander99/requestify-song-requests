@@ -34,3 +34,4 @@ use the editor.
 - Guest cooldown and anti-spam checks run atomically in a service-role-only database function called by submitSongRequest; transaction locks prevent parallel submissions bypassing checks.
 - Identify anonymous guests with a server-issued HTTP-only browser cookie hashed before storage, not IP/user-agent; shared Wi-Fi guests must not share restrictions.
 - Keep last successful submission activity separate from queue rows so deleting or moderating requests does not reset cooldowns; current event settings determine remaining time.
+- QR exports regenerate from the selected event URL; printing uses an isolated document so dashboard UI is never printed.

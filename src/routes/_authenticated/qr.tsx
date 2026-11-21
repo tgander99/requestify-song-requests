@@ -8,6 +8,7 @@ import { AdminNav } from "@/components/AdminNav";
 import { Link } from "@tanstack/react-router";
 import { PosterDownload } from "@/components/PosterDownload";
 import { useEvents, guestPath } from "@/lib/events";
+import { printQr, qrOptions, saveQrPng } from "@/lib/qr-actions";
 
 export const Route = createFileRoute("/_authenticated/qr")({
   validateSearch: (s: Record<string, unknown>): { event?: string } =>
@@ -35,11 +36,23 @@ function QrPage() {
   const [url, setUrl] = useState("");
   const [img, setImg] = useState("");
   useEffect(() => {
-    if (!current) return;
+    let active = true;
+    setImg("");
+    if (!current) { setUrl(""); return; }
     const u = `${window.location.origin}${guestPath(current.slug)}`;
     setUrl(u);
-    QRCode.toDataURL(u, { width: 1024, margin: 2, errorCorrectionLevel: "M" }).then(setImg);
-  }, [current]);
+    QRCode.toDataURL(u, qrOptions).then((value) => { if (active) setImg(value); })
+      .catch(() => { if (active) toast.error("Couldn't generate QR code"); });
+    return () => { active = false; };
+  }, [current?.id, current?.slug]);
+  async function exportQr(kind: "png" | "print") {
+    if (!current) return;
+    const destination = `${window.location.origin}${guestPath(current.slug)}`;
+    try {
+      if (kind === "png") await saveQrPng(destination, current.slug);
+      else await printQr(destination, current.name);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Couldn't export QR code"); }
+  }
   if (evs.isLoading) return <div className="min-h-screen stage-bg"><AdminNav /></div>;
   if (!current) return (
     <div className="min-h-screen stage-bg"><AdminNav />
@@ -68,8 +81,8 @@ function QrPage() {
           <p className="mt-4 break-all text-sm text-muted-foreground">{url}</p>
         </div>
         <div className="no-print mt-6 grid grid-cols-3 gap-2">
-          <Button variant="neon" asChild disabled={!img}><a href={img} download={`requestify-${current.slug}-qr.png`}><Download />PNG</a></Button>
-          <Button variant="glass" onClick={() => window.print()}><Printer />Print</Button>
+          <Button variant="neon" disabled={!img} onClick={() => void exportQr("png")}><Download />Save PNG</Button>
+          <Button variant="glass" disabled={!img} onClick={() => void exportQr("print")}><Printer />Print</Button>
           <Button variant="glass" onClick={() => { navigator.clipboard.writeText(url); toast.success("Link copied"); }}><Copy />Link</Button>
         </div>
         <div className="no-print mt-4"><PosterDownload event={current} /></div>
